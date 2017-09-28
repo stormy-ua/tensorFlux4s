@@ -11,8 +11,6 @@ package object graph {
 
   type Computation[F[_], T] = Map[String, CompGraph[T]] => F[CompGraph[T]]
 
-  type Computation2[F[_], T] = Aux[F, T] => Map[String, T] => F[T]
-
   def liftConstant[T](name: String)(t: T): CompGraph[T] =
     LeafVertex(Payload(Op.Constant, t, name.some))
 

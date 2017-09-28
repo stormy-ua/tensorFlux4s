@@ -1,12 +1,14 @@
 package org.tensorFlux4s
 package examples
 
-import cats.Monad
+import cats.{Monad, MonadError}
 import cats.syntax.either._
 import cats.syntax.EitherSyntax._
 import cats.syntax._
 import cats.implicits._
 import dsl._
+import org.tensorFlux4s.computation.graph.{CompGraph, CompGraphAlgebra, Computation}
+
 import scala.language.postfixOps
 
 object ArtificialNeuron {
@@ -14,8 +16,6 @@ object ArtificialNeuron {
   def neuron[F[_] : Monad, T](alg: Aux[F, T])(variables: Map[String, T]): F[T] = {
     import alg._
     import dsl.implicits._
-
-    implicit val algAux = alg.aux
 
     def var_(name: String) = variable(name)(variables(name))
     def const_(name: String) = constant(variables(name))

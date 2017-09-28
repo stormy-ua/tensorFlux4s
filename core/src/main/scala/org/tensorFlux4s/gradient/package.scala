@@ -53,7 +53,9 @@ package object gradient {
         }.toList.sequence
         fshifts <- shifts.map(sh => forward(comp)(variables.updated(varName, sh))).sequence
         diff <- fshifts.map(sh => subtract(sh, fv)).sequence
-        dfshifts <- diff.map(sh => get(sh, 0).map(_/dx)).sequence
+        dfshifts <- diff.zip(0 until s.product).map {
+          case (sh, i) => get(sh, i).map(_/dx)
+        }.sequence
         grad <- cons(dfshifts, s:_*)
       } yield grad
     }
@@ -68,14 +70,14 @@ package object gradient {
 
     import dsl.implicits._
 
-    val dx = -1E-5
+    val learningRate = -1E-5
 
     implicit val semi = new Semigroup[F[alg.T]] {
 
       def combine(x: F[alg.T], y: F[alg.T]): F[alg.T] = for {
         xt <- x
         yt <- y
-        dt <- alg.fill(dx, 1, 1)
+        dt <- alg.fill(learningRate, 1, 1)
         dy <- yt * dt
         s <- xt + dy
       } yield s
